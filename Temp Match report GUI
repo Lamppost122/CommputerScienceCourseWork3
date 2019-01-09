@@ -1,0 +1,135 @@
+#Temp Match report GUI
+import json
+from tkinter import messagebox
+
+
+
+
+import re,datetime,io,sys,os.path,os,smtplib,hashlib, uuid,ctypes
+##from email.MIMEMultipart import MIMEMultipart
+##from email.MIMEText import MIMEText
+import tkinter as tk
+from tkinter import font  as tkfont
+
+class SampleApp(tk.Tk):
+
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+
+
+        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+        for F in (Temp,MatchReport):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame("MatchReport")
+
+    def show_frame(self, page_name):
+        '''Show a frame for the given page name'''
+        frame = self.frames[page_name]
+        frame.tkraise()
+        frame.update()
+
+class Temp(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+
+
+
+
+
+class MatchReport(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.count = 1
+        self.RemoveRowButton = tk.Button(self,text="Remove row",command = self.RemovePlayer)
+        self.AddRowButton = tk.Button(self,text = "Add Row",command= self.AddPlayer )
+        self.SubmitButton = tk.Button(self,text = "Submit",command = self.get_Match_Report_Data)
+        self.lblPlayer = tk.Label(self,text = "Player")
+        self.lblGoal = tk.Label(self,text="Goals")
+        self.lblGreenCard = tk.Label(self,text="Green Card")
+        self.lblYellowCard = tk.Label(self,text= "Yellow Card")
+        self.lblRedCard = tk.Label(self,text= "Red Card")
+        self.lblPlayer.grid(row = 0, column = 0)
+        self.lblGoal.grid(row = 0 , column =1)
+        self.lblGreenCard.grid(row = 0 ,column  = 2)
+        self.lblYellowCard.grid(row =0, column = 3)
+        self.lblRedCard.grid(row= 0 ,column = 4 )
+        self.AddRowButton.grid(row= 0,column = 5)
+        self.RemoveRowButton.grid(row=0 ,column = 6)
+        self.SubmitButton.grid(row =0 ,column =7)
+        self.AddPlayer()
+
+    def AddPlayer(self):
+        self.count +=1
+        self.txtPlayer=tk.Entry(self)
+        self.txtGoal = tk.Entry(self)
+        self.txtGreen = tk.Entry(self)
+        self.txtYellow = tk.Entry(self)
+        self.txtRed = tk.Entry(self)
+        self.txtPlayer.grid(row = self.count, column  =0 )
+        self.txtGoal.grid(row = self.count, column  =1 )
+        self.txtGreen.grid(row = self.count, column  =2 )
+        self.txtYellow.grid(row = self.count, column  =3 )
+        self.txtRed.grid(row = self.count, column  =4 )
+    def RemovePlayer(self):
+
+        for label in self.grid_slaves():
+            if int(label.grid_info()["row"]) > self.count-1:
+                label.grid_forget()
+
+        self.count-=1
+
+    def get_Match_Report_Data(self):
+        data = []
+        for i,j in enumerate(self.grid_slaves()):
+            try:
+                data.append(j.get())
+                if ((i+1)% 5) == 0 :
+                    data =  list(reversed(data))
+
+            except :AttributeError
+    def getPlayerID(self):
+        pass
+
+    def Player_Data(Goal,GreenCards,YellowCards,RedCards):
+       PlayerData = {
+        "Goals": Goal,
+        "Green cards": GreenCards,
+        "Yellow cards": YellowCards,
+        "Red Cards": RedCards
+        }
+       return PlayerData
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    app = SampleApp()
+    app.mainloop()
