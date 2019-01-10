@@ -1,4 +1,9 @@
 #Temp Match report GUI
+"""
+Note needs testing for the get_Match_Report
+Need testing, validation and optimistation for get Playersearch
+
+"""
 import json
 from tkinter import messagebox
 
@@ -54,65 +59,158 @@ class MatchReport(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.count = 1
+        self.count = 5
+        self.StartCount = self.count +1
+        self.Title = tk.Label(self, text="Match Report", font=controller.title_font)
+        self.lblTeam = tk.Label(self,text = "Team Number : ")
+        self.lblDate = tk.Label(self,text = "Date :")
+        self.txtTeam = tk.Entry(self)
+        self.txtDate = tk.Entry(self)
         self.RemoveRowButton = tk.Button(self,text="Remove row",command = self.RemovePlayer)
         self.AddRowButton = tk.Button(self,text = "Add Row",command= self.AddPlayer )
         self.SubmitButton = tk.Button(self,text = "Submit",command = self.get_Match_Report_Data)
-        self.lblPlayer = tk.Label(self,text = "Player")
+        self.lblFirstName = tk.Label(self,text = "FirstName")
+        self.lblLastName = tk.Label(self,text = "Last Name")
         self.lblGoal = tk.Label(self,text="Goals")
         self.lblGreenCard = tk.Label(self,text="Green Card")
         self.lblYellowCard = tk.Label(self,text= "Yellow Card")
         self.lblRedCard = tk.Label(self,text= "Red Card")
-        self.lblPlayer.grid(row = 0, column = 0)
-        self.lblGoal.grid(row = 0 , column =1)
-        self.lblGreenCard.grid(row = 0 ,column  = 2)
-        self.lblYellowCard.grid(row =0, column = 3)
-        self.lblRedCard.grid(row= 0 ,column = 4 )
-        self.AddRowButton.grid(row= 0,column = 5)
-        self.RemoveRowButton.grid(row=0 ,column = 6)
-        self.SubmitButton.grid(row =0 ,column =7)
+        self.lblScore = tk.Label(self,text="Score: ")
+        self.lblWhichurch =  tk.Label(self,text="Whichchurch")
+        self.lblOpposition = tk.Label(self,text = "Opposition")
+        self.WhichchurchScore = tk.Entry(self)
+        self.oppositionScore = tk.Entry(self)
+        self.Title.grid(row = 0,column = 0,columnspan = 8)
+        self.lblTeam.grid(row = 1, column = 0)
+        self.lblDate.grid(row = 1, column = 2)
+        self.txtTeam.grid(row = 1, column = 1)
+        self.txtDate.grid(row = 1, column = 3)
+        self.lblScore.grid(row = 3, column = 0)
+        self.lblWhichurch.grid(row = 2, column = 1)
+        self.lblOpposition.grid(row = 2, column = 2)
+        self.WhichchurchScore.grid(row = 3, column = 1)
+        self.oppositionScore.grid(row = 3, column = 2)
+        self.lblFirstName.grid(row = 4, column = 0)
+        self.lblLastName.grid(row= 4,column = 1)
+        self.lblGoal.grid(row = 4, column =2)
+        self.lblGreenCard.grid(row = 4 ,column  = 3)
+        self.lblYellowCard.grid(row =4, column = 4)
+        self.lblRedCard.grid(row= 4 ,column = 5 )
+        self.AddRowButton.grid(row= 4,column = 6)
+        self.RemoveRowButton.grid(row=4 ,column = 7)
+        self.SubmitButton.grid(row =4 ,column =8)
         self.AddPlayer()
 
     def AddPlayer(self):
         self.count +=1
-        self.txtPlayer=tk.Entry(self)
+        self.txtFirstName=tk.Entry(self)
+        self.txtLastName = tk.Entry(self)
         self.txtGoal = tk.Entry(self)
         self.txtGreen = tk.Entry(self)
         self.txtYellow = tk.Entry(self)
         self.txtRed = tk.Entry(self)
-        self.txtPlayer.grid(row = self.count, column  =0 )
-        self.txtGoal.grid(row = self.count, column  =1 )
-        self.txtGreen.grid(row = self.count, column  =2 )
-        self.txtYellow.grid(row = self.count, column  =3 )
-        self.txtRed.grid(row = self.count, column  =4 )
+        self.txtFirstName.grid(row = self.count, column  =0 )
+        self.txtLastName.grid(row = self.count,column = 1)
+        self.txtGoal.grid(row = self.count, column  =2 )
+        self.txtGreen.grid(row = self.count, column  =3 )
+        self.txtYellow.grid(row = self.count, column  =4 )
+        self.txtRed.grid(row = self.count, column  =5 )
     def RemovePlayer(self):
 
         for label in self.grid_slaves():
-            if int(label.grid_info()["row"]) > self.count-1:
+            if int(label.grid_info()["row"]) > self.count-1 and self.count > self.StartCount :
                 label.grid_forget()
+        if self.count > self.StartCount:
+            self.count-=1
 
-        self.count-=1
+
+
 
     def get_Match_Report_Data(self):
         data = []
+        matchData = []
+        matchReport = {}
+
         for i,j in enumerate(self.grid_slaves()):
-            try:
-                data.append(j.get())
-                if ((i+1)% 5) == 0 :
-                    data =  list(reversed(data))
+            if int(j.grid_info()["row"]) >= self.StartCount:
+                pass
+                try:
 
-            except :AttributeError
-    def getPlayerID(self):
-        pass
+                    data.append(j.get())
+                    if len(data) == 6 :
 
-    def Player_Data(Goal,GreenCards,YellowCards,RedCards):
-       PlayerData = {
+
+                        data =  list(reversed(data))
+
+                        playerData = self.Player_Data(data[2],data[3],data[4],data[5])
+                        player = "temp"#self. getPLayerID(data[0],data[1])
+                        matchReport[player] = playerData
+                        data = []
+
+
+                except :AttributeError
+            else:
+                try:
+
+                    matchData.append(j.get())
+                    if len(matchData) == 4:
+
+                        matchID ="temp" #self.getMatchID(matchData[3],matchData[2])
+                        winStatus = self.win_Status(matchData[1],matchData[0])
+                        matchData = self.Match_Data(matchID,matchData[0],matchData[1],winStatus)
+                        matchReport["Match Data"] = matchData
+
+
+
+
+
+
+                except :AttributeError
+        
+    def write_Match_Report(self):
+        with open('matchReport.json') as fp:
+                matchReport= json.load(fp)
+        matchReportID = uuid.uuid4()
+        matchReport[matchReportID] = self.get_Match_Report_Data()
+    def getMatchID(self,Date,Team):
+         with open('matchs.json') as fp:
+                matchss= json.load(fp)
+         for i in players:
+            if i["Date"] ==  Date and i["Team"] == Team: #Will need to change dependent on an uodate to match structure
+                return i
+
+    def getPLayerID(self,FirstName,LastName):
+        with open('player.json') as fp:
+                players= json.load(fp)
+        for i in players:
+            if i["FirstName"] ==  FirstName and i["LastName"] == LastName:
+                return i
+    def win_Status(self,ClubScore ,OppositonScore):
+        if ClubScore > OppositonScore:
+            return "Win"
+        elif ClubScore == OppositonScore:
+            return "Draw"
+        else:
+            return "Loss"
+    def Match_Data( self,MatchID,ClubScore,OppositonScore,winStatus):
+        matchData = {
+        "matchID" : MatchID,
+        "ClubScore" : ClubScore,
+        "OppositionScore" : OppositonScore,
+        "WinStatus" : winStatus
+        }
+        return matchData
+
+    def Player_Data(self,Goal,GreenCards,YellowCards,RedCards):
+
+        PlayerData = {
         "Goals": Goal,
         "Green cards": GreenCards,
         "Yellow cards": YellowCards,
         "Red Cards": RedCards
         }
-       return PlayerData
+
+        return PlayerData
 
 
 
