@@ -6,6 +6,7 @@ Need testing, validation and optimistation for get Playersearch
 """
 import json
 from tkinter import messagebox
+from tkinter import ttk
 
 
 
@@ -61,25 +62,28 @@ class MatchReport(tk.Frame):
         self.controller = controller
         self.count = 5
         self.StartCount = self.count +1
-        self.Title = tk.Label(self, text="Match Report", font=controller.title_font)
-        self.lblTeam = tk.Label(self,text = "Team Number : ")
-        self.lblDate = tk.Label(self,text = "Date :")
-        self.txtTeam = tk.Entry(self)
-        self.txtDate = tk.Entry(self)
-        self.RemoveRowButton = tk.Button(self,text="Remove row",command = self.RemovePlayer)
-        self.AddRowButton = tk.Button(self,text = "Add Row",command= self.AddPlayer )
-        self.SubmitButton = tk.Button(self,text = "Submit",command = self.get_Match_Report_Data)
-        self.lblFirstName = tk.Label(self,text = "FirstName")
-        self.lblLastName = tk.Label(self,text = "Last Name")
-        self.lblGoal = tk.Label(self,text="Goals")
-        self.lblGreenCard = tk.Label(self,text="Green Card")
-        self.lblYellowCard = tk.Label(self,text= "Yellow Card")
-        self.lblRedCard = tk.Label(self,text= "Red Card")
-        self.lblScore = tk.Label(self,text="Score: ")
-        self.lblWhichurch =  tk.Label(self,text="Whichchurch")
-        self.lblOpposition = tk.Label(self,text = "Opposition")
-        self.WhichchurchScore = tk.Entry(self)
-        self.oppositionScore = tk.Entry(self)
+        self.Title = ttk.Label(self, text="Match Report", font=controller.title_font)
+        self.lblTeam = ttk.Label(self,text = "Team Number : ")
+        self.lblDate = ttk.Label(self,text = "Date :")
+        self.lblImport = ttk.Label(self,text = "Import Team:")
+        self.txtImport = ttk.Entry(self)
+        self.txtTeam = ttk.Entry(self)
+        self.txtDate = ttk.Entry(self)
+        self.RemoveRowButton = ttk.Button(self,text="Remove row",command = self.RemovePlayer)
+        self.AddRowButton = ttk.Button(self,text = "Add Row",command= self.AddPlayer )
+        self.SubmitButton = ttk.Button(self,text = "Submit",command = self.submit)
+        self.ImportButton = ttk.Button(self,text="Import Team",command = self.ImportTeam)
+        self.lblFirstName = ttk.Label(self,text = "FirstName")
+        self.lblLastName = ttk.Label(self,text = "Last Name")
+        self.lblGoal = ttk.Label(self,text="Goals")
+        self.lblGreenCard = ttk.Label(self,text="Green Card")
+        self.lblYellowCard = ttk.Label(self,text= "Yellow Card")
+        self.lblRedCard = ttk.Label(self,text= "Red Card")
+        self.lblScore = ttk.Label(self,text="Score: ")
+        self.lblWhichurch =  ttk.Label(self,text="Whitchchurch")
+        self.lblOpposition = ttk.Label(self,text = "Opposition")
+        self.WhichchurchScore = ttk.Entry(self)
+        self.oppositionScore = ttk.Entry(self)
         self.Title.grid(row = 0,column = 0,columnspan = 8)
         self.lblTeam.grid(row = 1, column = 0)
         self.lblDate.grid(row = 1, column = 2)
@@ -99,16 +103,19 @@ class MatchReport(tk.Frame):
         self.AddRowButton.grid(row= 4,column = 6)
         self.RemoveRowButton.grid(row=4 ,column = 7)
         self.SubmitButton.grid(row =4 ,column =8)
+        self.lblImport.grid(row=1,column = 4)
+        self.txtImport.grid(row = 1,column = 5)
+        self.ImportButton.grid(row=1,column= 6)
         self.AddPlayer()
 
     def AddPlayer(self):
         self.count +=1
-        self.txtFirstName=tk.Entry(self)
-        self.txtLastName = tk.Entry(self)
-        self.txtGoal = tk.Entry(self)
-        self.txtGreen = tk.Entry(self)
-        self.txtYellow = tk.Entry(self)
-        self.txtRed = tk.Entry(self)
+        self.txtFirstName=ttk.Entry(self)
+        self.txtLastName = ttk.Entry(self)
+        self.txtGoal = ttk.Entry(self)
+        self.txtGreen = ttk.Entry(self)
+        self.txtYellow = ttk.Entry(self)
+        self.txtRed = ttk.Entry(self)
         self.txtFirstName.grid(row = self.count, column  =0 )
         self.txtLastName.grid(row = self.count,column = 1)
         self.txtGoal.grid(row = self.count, column  =2 )
@@ -131,9 +138,10 @@ class MatchReport(tk.Frame):
         matchData = []
         matchReport = {}
 
+
         for i,j in enumerate(self.grid_slaves()):
             if int(j.grid_info()["row"]) >= self.StartCount:
-                pass
+
                 try:
 
                     data.append(j.get())
@@ -153,11 +161,12 @@ class MatchReport(tk.Frame):
                 try:
 
                     matchData.append(j.get())
-                    if len(matchData) == 4:
+                    if len(matchData) == 5:
 
-                        matchID ="temp" #self.getMatchID(matchData[3],matchData[2])
-                        winStatus = self.win_Status(matchData[1],matchData[0])
-                        matchData = self.Match_Data(matchID,matchData[0],matchData[1],winStatus)
+
+                        matchID ="temp" #self.getMatchID(matchData[4],matchData[3])
+                        winStatus = self.win_Status(matchData[2],matchData[1])
+                        matchData = self.Match_Data(matchID,matchData[2],matchData[1],winStatus)
                         matchReport["Match Data"] = matchData
 
 
@@ -165,13 +174,14 @@ class MatchReport(tk.Frame):
 
 
 
+
                 except :AttributeError
-        
-    def write_Match_Report(self):
+        return matchReport
+    def write_Match_Report(self,matchReport):
         with open('matchReport.json') as fp:
                 matchReport= json.load(fp)
         matchReportID = uuid.uuid4()
-        matchReport[matchReportID] = self.get_Match_Report_Data()
+        matchReport[matchReportID] = matchReport
     def getMatchID(self,Date,Team):
          with open('matchs.json') as fp:
                 matchss= json.load(fp)
@@ -179,7 +189,7 @@ class MatchReport(tk.Frame):
             if i["Date"] ==  Date and i["Team"] == Team: #Will need to change dependent on an uodate to match structure
                 return i
 
-    def getPLayerID(self,FirstName,LastName):
+    def getPlayerID(self,FirstName,LastName):
         with open('player.json') as fp:
                 players= json.load(fp)
         for i in players:
@@ -211,15 +221,115 @@ class MatchReport(tk.Frame):
         }
 
         return PlayerData
+    def Player_stats_update(self,matchReport):
+
+        with open('playersStats.txt') as fp:
+            playersData = json.load(fp)
+
+        for i in matchReport:
+            if i!= "Match Data":
+                playersData[i]["Life time goals"] += i["Goal"]
+                playersData[i]["Season goals"] += i["Goal"]
+                playersData[i]["Life time green cards"] += i["Green cards"]
+                playersData[i]["Season green cards"] += i["Green cards"]
+                playersData[i]["Life time yellopw cards"] += i["Yellow cards"]
+                playersData[i]["Season yellow cards"] += i["Yellow cards"]
+                playersData[i]["Life time red cards"] += i["Red cards"]
+                playersData[i]["Season red cards"] += i["Red cards"]
+                playersData[i]["Life time Games"] +=1
+                playersData[i]["Season games"] += 1
+
+        with open('playersStats.json', 'w+') as fp:
+                    json.dump(playersData, fp)
+
+    def seasonReset(self):
+        with open('playersStats.json') as fp:
+            playersData = json.load(fp)
+        for data in playersData:
+            data["Season goals"] = 0
+            data["Season green cards"] = 0
+            data["Season yellow cards"] = 0
+            data["Season red cards"] = 0
+            data["Season games"] = 0
+
+        with open('players.json', 'w+') as fp:
+                    json.dump(playersData, fp)
+
+    def newSeason(self):
+        with open('season.txt') as fp:
+            season= fp.read()
+        date = datetime.datetime.strptime(season, '%Y-%d-%m')
+        if datetime.datetime.today() > date:
+            self.seasonReset()
+            date = date + timedelta(year=1)
+            with open('season.txt') as fp:
+                fp.write(date)
+
+    def submit(self):
+        self.newSeason()
+        matchReport = self.get_Match_Report_Data()
+        self.write_Match_Report(matchReport)
+        self.Player_stats_update(matchReport)
+
+    def ImportTeam(self):
+        teamNumber = self.txtImport.get()
+        team = self.get_Team(teamNumber)
+        self.Write_to_screen(team)
+
+
+    def get_Team(self,teamNumber):
+
+
+        Names = [["john","mark"],["antony","jamon"]]
+##        with open('team.json') as fp:
+##            team = fp.read()
+##
+##
+##        for i in team:
+##            Names.append(i["First name"],i["Last name"])
 
 
 
 
+        return Names
+
+    def Write_to_screen(self,team):
+        counter = 0
+        columnFull =False
+
+
+        for i,j in enumerate(reversed(self.grid_slaves())):
+            if int(j.grid_info()["row"]) >= self.StartCount and int(j.grid_info()["column"]) <=1 :
+
+
+                try:
+
+                    if j.get() != "":
+                        if int(j.grid_info()["column"]) == 0:
+                            columnFull = True
+                            counter +=1
+                        else:
+                            if columnFull != True:
+                                for k,l in  enumerate(reversed(self.grid_slaves())):
+                                        if k == i-1:
+                                            counter +=1
+                                            l.delete(0,tk.END)
+                                            columnFull = False
+                            else:
+                                columnFull = False
+                    else:
+                        if columnFull == True:
+                            columnFull = False
+                        else:
+                                text = team[int(j.grid_info()["row"])-self.StartCount-counter][int(j.grid_info()["column"])]
+                                j.delete(0,tk.END)
+                                j.insert(0,text)
+                                columnFull = False
 
 
 
 
-
+                except :AttributeError
 
 
 
