@@ -1,0 +1,12 @@
+import sys, os
+
+class SystemToolKit():
+    def readFile(self,FileName):
+        Data = ""
+        if os.path.exists(FileName):
+            with open(FileName,"r") as fp:
+                Data= json.load(fp)
+                return Data
+        else:
+            with open(FileName,"w+") as fp:
+                return Data
