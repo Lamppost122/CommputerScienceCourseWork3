@@ -1,0 +1,132 @@
+
+"""
+Note needs testing for the get_Match_Report
+Need testing, validation and optimistation for get Playersearch
+
+"""
+import json
+from tkinter import messagebox
+
+
+from SystemtoolKit import *
+
+
+import re,datetime,io,sys,os.path,os,smtplib,hashlib, uuid,ctypes
+##from email.MIMEMultipart import MIMEMultipart
+##from email.MIMEText import MIMEText
+import tkinter as tk
+from tkinter import font  as tkfont
+
+class SampleApp(tk.Tk):
+
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+
+
+        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+        for F in (Temp,News):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame("News")
+
+    def show_frame(self, page_name):
+        '''Show a frame for the given page name'''
+        frame = self.frames[page_name]
+        frame.tkraise()
+        frame.update()
+
+class Temp(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+
+
+
+
+
+
+class News(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.startCount = 2
+        self.addUpdateButton =tk.Button(self,text = "Add update",command = self.AddUpdate)
+        self.lblAddUpdate = tk.Label(self,text = "Enter News/Update bellow")
+        self.txtAddUpdate =tk.Text(self,width="50",height = "10")
+        self.lblAddUpdate.grid(row = 0,column =0 )
+        self.txtAddUpdate.grid(row = 1,column = 0)
+        self.addUpdateButton.grid(row=1,column =1)
+        self.write_News_to_screen()
+
+
+
+
+
+    def write_News_to_screen(self):
+        updates = SystemToolKit.readFile(News,"updates.json")
+
+        for i in updates:
+            print()
+            j = tk.Label(self,text = updates[i])
+            k = tk.Label(self,text= updates[i])
+
+            j.grid(row = (2 *len(updates))-int(i)+self.startCount,columnspan =2,column  =0)
+            k.grid(row =(2 *len(updates))-int(i)+self.startCount + 1,columnspan =2,column  =0 )
+
+    def AddUpdate(self):
+
+        with open('updates.json') as fp:
+                updates= json.load(fp)
+        index = 0
+        for i,j in enumerate(list(((updates).keys()))):
+            if index <= int(j):
+                index =int(j) + 1
+        updates[index] = {"Data":self.txtAddUpdate.get("1.0",'end-1c'),"Date":str(datetime.date.today())}
+        with open('updates.json',"w") as fp:
+                json.dump(updates,fp)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    app = SampleApp()
+    app.mainloop()
