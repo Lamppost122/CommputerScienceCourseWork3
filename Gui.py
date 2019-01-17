@@ -18,6 +18,7 @@ from tkinter import font  as tkfont
 CurrentUser = ""
 AccessLevel = "Player"
 
+
 class SampleApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -31,7 +32,7 @@ class SampleApp(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (Login, Register,ProfileSetup,Home):
+        for F in (Login, Register,ProfileSetup,Home,AddMatch,MatchScreen,AdminCommands,RemoveMatch):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -284,11 +285,9 @@ class Home(tk.Frame):
         self.lblPostcode= tk.Label(self,text=" Postcode :")
         self.lblDateOfBirth= tk.Label(self,text=" Date of Birth :")
         self.lblTeam = tk.Label(self,text=" Team :")
-
-
-
-
-
+        self.GetDataButton = tk.Button(self,text="Get Data",command=self.on_show_frame)
+        self.MatchButton =tk.Button(self,text = "Match Data",command = lambda :controller.show_frame("MatchScreen"))
+        self.AdminCommandsButton = tk.Button(self,text = "AdminCommands",command = lambda:controller.show_frame("AdminCommands"))
 
         self.titleProfile.grid(row = 0 ,column = 0 ,columnspan = 2)
         self.lblFirstName.grid(row=1,column=0)
@@ -298,6 +297,9 @@ class Home(tk.Frame):
         self.lblPostcode.grid(row=5,column=0)
         self.lblDateOfBirth.grid(row=6,column=0)
         self.lblTeam.grid(row=7,column = 0 )
+        self.GetDataButton.grid(row=8,column =0)
+        self.MatchButton.grid(row = 3,column = 3)
+        self.AdminCommandsButton.grid(row=3,column =4)
         self.on_show_frame()
 
 
@@ -309,7 +311,11 @@ class Home(tk.Frame):
         with open('players.json', 'r') as fp:
                     player = json.load(fp)
 
-        data = player[CurrentUser]
+##        with open("team.json","r")as fp:
+##            team = json.load(fp)
+
+        Playerdata = player[CurrentUser]
+
         self.lblDataFirstName= tk.Label(self,text ="User Data Not Found ")
         self.lblDataLastName= tk.Label(self,text="User Data Not Found ")
         self.lblDataPhoneNumber= tk.Label(self,text="User Data Not Found ")
@@ -325,18 +331,14 @@ class Home(tk.Frame):
         self.lblDataPostcode.grid(row=5,column=1)
         self.lblDataDateOfBirth.grid(row=6,column=1)
         self.lblDataTeam.grid(row=7,column = 1 )
-        print data["First name"]
-        self.lblDataFirstName.config(text = data["First name"])
 
-
-
-
-
-
-
-
-
-
+        self.lblDataFirstName.config(text = Playerdata["First name"])
+        self.lblDataLastName.config(text = Playerdata["Last name"])
+        self.lblDataPhoneNumber.config(text = Playerdata["Phone number"])
+        self.lblDataAddress.config(text = Playerdata["Address"])
+        self.lblDataPostcode.config(text = Playerdata["Post code"])
+        self.lblDataDateOfBirth.config(text = Playerdata["Date of Birth"])
+        self.lblDataTeam.config(text = Playerdata["First name"]) # Need to change to team when team is implemented
 
 
 
@@ -373,9 +375,8 @@ class Login(tk.Frame,Home):
                 if users[i]["ValidEmail"] == True :
                     CurrentUser = i
                     AccessLevel = users[i]["AccessLevel"]
-                    Home.on_show_frame(self)
 
-                    #controller.show_frame("Home")
+                    controller.show_frame("Home")
                     break
                 else :
                     self.ValidateEmail()
@@ -403,10 +404,180 @@ class Login(tk.Frame,Home):
                 json.dump(users, fp)
 
     def loginSuccessfull(self,user):
-
-
         controller.show_frame("Home")
 
+
+
+class MatchScreen(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.Title = tk.Label(self,text = "Matchs" ,font = controller.title_font)
+        self.lblTeam = tk.Label(self,text = "Team: ")
+        self.txtTeamNumber = tk.Entry(self)
+        self.GetTeamMatchesButton = tk.Button(self,text = "Get Team Matches",command=self.get_Team_Matches)
+        self.GetMyMatchesButton =tk.Button(self,text = "Get My Matches")
+        self.Title.grid(row = 0,column  =0)
+        self.lblTeam.grid(row = 1,column  =0)
+        self.txtTeamNumber.grid(row = 1,column  =1)
+        self.GetTeamMatchesButton.grid(row = 1,column  =2)
+        self.GetMyMatchesButton.grid(row = 1,column  =3)
+
+    def get_Team_Matches(self):
+         TeamNumber = self.txtTeamNumber.get()
+         Data = {"1":1}
+         MatchData = Data[TeamNumber]
+         MatchData = sorted(MatchData)#by date
+
+         for i ,j in enumerate(MatchData):
+            MatchText = ""
+            j = tk.Label(self,text = MatchText)
+            j.grid(row = i ,column = 0 )
+
+class AddMatch(tk.Frame):
+
+        def __init__(self, parent, controller):
+            tk.Frame.__init__(self, parent)
+            self.controller = controller
+            self.Title = tk.Label(self,text = "Add Match" ,font = controller.title_font)
+
+            self.lblTeam= tk.Label(self,text="Team: ")
+            self.lblLocation =tk.Label(self,text="Location: ")
+            self.lblTime = tk.Label(self,text="Time: ")
+            self.lblDay = tk.Label(self,text="Day: ")
+            self.lblOpposition = tk.Label(self,text="Opposition: ")
+            self.txtTeam = tk.Entry(self)
+            self.txtLocation = tk.Entry(self)
+            self.txtTime = tk.Entry(self)
+            self.txtDate = tk.Entry(self)
+            self.txtOpposition = tk.Entry(self)
+            self.AddMatchButton = tk.Button(self,text="Add Match",command = self.AddMatch)
+
+            self.Title.grid(row=0,column =0,columnspan = 2)
+            self.lblTeam.grid(row=1,column=0)
+            self.lblLocation.grid(row=2,column=0)
+            self.lblTime.grid(row=3,column=0)
+            self.lblDay.grid(row=4,column=0)
+            self.lblOpposition.grid(row=5,column=0)
+            self.txtTeam.grid(row = 1,column = 1)
+            self.txtLocation.grid(row = 2,column = 1)
+            self.txtTime.grid(row = 3,column = 1)
+            self.txtDate.grid(row = 4,column = 1)
+            self.txtOpposition.grid(row = 5,column = 1)
+            self.AddMatchButton.grid(row = 6,column = 0 ,columnspan = 2 )
+
+        def AddMatch(self):
+
+            Team , Location, Time, Date, Opposition = self.getMatchData()
+
+            data = {}
+            matches={}
+
+            if self.validMatchData(Team , Location, Time, Date, Opposition) == True :
+
+
+##                with open('matchs.json', 'r') as fp:
+##                    match = json.load(fp)
+                data["Opposition"] = Opposition
+                data["Location"] = Location
+                data["Time"] = Time
+                data["Date"] = Date
+
+                matches[Team] = data
+
+                print(matches[Team])
+
+##
+##                with open('match.json', 'w+') as fp:
+##                    json.dump(players, fp)
+
+        def getMatchData(self):
+            Team =self.txtTeam.get()
+            Location = self.txtLocation.get()
+            Time = self.txtTime.get()
+            Date = self.txtDate.get()
+            Opposition = self.txtOpposition.get()
+            return Team , Location, Time, Date, Opposition
+
+        def validMatchData(self,Team , Location, Time, Day, Opposition):
+            return True
+
+class RemoveMatch(tk.Frame):
+
+        def __init__(self, parent, controller):
+            tk.Frame.__init__(self, parent)
+            self.controller = controller
+            self.Title = tk.Label(self,text = "Remove Match" ,font = controller.title_font)
+            self.lblTeam = tk.Label(self,text = "Team: ")
+            self.txtTeam = tk.Entry(self)
+            self.getMatchesButton = tk.Button(self,text = "Get Matches",command = self.GetMatches)
+            self.MatchList = tk.Listbox(self)
+
+
+            self.Title.grid(row = 0,column = 0,columnspan = 3)
+            self.lblTeam.grid(row = 1,column = 0)
+            self.txtTeam.grid(row = 1,column = 1 )
+            self.getMatchesButton.grid(row= 1 , column = 2)
+            self.MatchList.grid(row = 2,column = 0,columnspan = 3)
+
+
+
+        def GetMatches(self):
+
+            matches = ["one", "two", "three", "four"]
+            for item in matches:
+                self.MatchList.insert(tk.END, item)
+
+
+
+
+
+
+
+
+class AdminCommands(tk.Frame):
+
+        def __init__(self, parent, controller):
+            tk.Frame.__init__(self, parent)
+            self.controller = controller
+            self.Title =tk.Label(self,text="Admins commands",font = controller.title_font)
+            self.lblplayer = tk.Label(self,text = "Player tools")
+            self.lblMatches =tk.Label(self,text = "Match tools")
+            self.lblTeam =tk.Label(self,text = "Team tools")
+            self.lblUpdates = tk.Label(self,text = "Update/news tools")
+            self.AddPlayerButton = tk.Button(self,text="Add player")
+            self.RemovePlayerButton = tk.Button(self,text="Remove player")
+            self.EditPlayerButton = tk.Button(self,text="Edit player")
+            self.AddMatchButton = tk.Button(self,text="Add Match",command = lambda: controller.show_frame("AddMatch"))
+            self.RemoveMatchButton = tk.Button(self,text="Remove Match",command = lambda: controller.show_frame("RemoveMatch"))
+            self.EditMatchButton = tk.Button(self,text="Edit Match")
+            self.AddTeamButton = tk.Button(self,text="Add Team")
+            self.RemoveTeamButton = tk.Button(self,text="Remove Team")
+            self.EditTeamButton = tk.Button(self,text="Edit Team")
+            self.AddUpdateButton = tk.Button(self,text="Add Update")
+            self.RemoveUpdateButton = tk.Button(self,text="Remove Update")
+            self.EditUpdateButton = tk.Button(self,text="Edit Update")
+
+
+
+            self.Title.grid(row=0,column = 0,columnspan = 4)
+            self.lblplayer.grid(row=1,column = 0)
+            self.lblMatches.grid(row=1,column = 1)
+            self.lblTeam .grid(row=1,column = 2)
+            self.lblUpdates.grid(row=1,column = 3)
+            self.AddPlayerButton.grid(row=2,column = 0)
+            self.RemovePlayerButton.grid(row=3,column = 0)
+            self.EditPlayerButton.grid(row=4,column = 0)
+            self.AddMatchButton.grid(row=2,column = 1)
+            self.RemoveMatchButton.grid(row=3,column = 1)
+            self.EditMatchButton.grid(row=4,column = 1)
+            self.AddTeamButton.grid(row=2,column = 2)
+            self.RemoveTeamButton.grid(row=3,column = 2)
+            self.EditTeamButton.grid(row=4,column = 2)
+            self.AddUpdateButton.grid(row=2,column = 3)
+            self.RemoveUpdateButton.grid(row=3,column = 3)
+            self.EditUpdateButton.grid(row=4,column = 3)
 
 
 
